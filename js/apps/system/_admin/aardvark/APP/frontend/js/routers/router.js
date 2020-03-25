@@ -23,6 +23,7 @@
       'collection/:colid/documents/:pageid': 'documents',
       'cIndices/:colname': 'cIndices',
       'cSettings/:colname': 'cSettings',
+      'cValidation/:colname': 'cValidation',
       'cInfo/:colname': 'cInfo',
       'collection/:colid/:docid': 'document',
       'shell': 'shell',
@@ -684,6 +685,28 @@
         cache: false,
         success: function () {
           self.settingsView = new window.SettingsView({
+            collectionName: colname,
+            collection: self.arangoCollectionsStore.findWhere({
+              name: colname
+            })
+          });
+          self.settingsView.render();
+        }
+      });
+    },
+
+    cValidation: function (colname, initialized) {
+      var self = this;
+
+      this.checkUser();
+      if (!initialized) {
+        this.waitForInit(this.cValidation.bind(this), colname);
+        return;
+      }
+      this.arangoCollectionsStore.fetch({
+        cache: false,
+        success: function () {
+          self.settingsView = new window.ValidationView({
             collectionName: colname,
             collection: self.arangoCollectionsStore.findWhere({
               name: colname
